@@ -26,7 +26,7 @@ func TestS3(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if bytes.Compare(bUp, bDown) != 0 {
+	if !bytes.Equal(bUp, bDown) {
 		t.Fatal("Uploaded data are different from the data received in the download.")
 	}
 
@@ -40,5 +40,4 @@ func TestS3(t *testing.T) {
 	if err == nil {
 		t.Fatal("An error was expected")
 	}
-
 }

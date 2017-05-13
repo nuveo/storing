@@ -13,6 +13,7 @@ import (
 
 var awsSession *session.Session
 
+// Provider returns the name of the provider of the current adapter.
 func Provider() string {
 	return "s3"
 }
@@ -37,7 +38,7 @@ func Upload(name string, contentType string, content []byte) (path string, err e
 	var file *s3manager.UploadOutput
 	file, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket:      aws.String("nuveofs"),
-		ACL:         aws.String("public-read"),
+		ACL:         aws.String("private"),
 		Key:         aws.String(name),
 		ContentType: aws.String(contentType),
 		Body:        bytes.NewReader(content),
