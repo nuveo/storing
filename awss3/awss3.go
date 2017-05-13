@@ -29,7 +29,7 @@ func startS3Session() (err error) {
 func Upload(name string, contentType string, content []byte) (path string, err error) {
 	err = startS3Session()
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	uploader := s3manager.NewUploader(awsSession)
@@ -75,7 +75,7 @@ func Download(path string) (b []byte, err error) {
 		return
 	}
 
-	b, err = ioutil.ReadAll(f)
+	b, err = ioutil.ReadAll(tmpfile)
 	return
 }
 
@@ -83,7 +83,7 @@ func Download(path string) (b []byte, err error) {
 func Delete(key string) (err error) {
 	err = startS3Session()
 	if err != nil {
-		return nil, err
+		return
 	}
 
 	svc := s3.New(awsSession)
