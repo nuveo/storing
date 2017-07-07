@@ -11,29 +11,32 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
 
-var awsSession *session.Session
+// Storing implementation for aws s3
+type Storing struct {
+	session *session.Session
+}
 
 // Provider returns the name of the provider of the current adapter.
-func Provider() string {
+func (s *Storing) Provider() string {
 	return "s3"
 }
 
-func startS3Session() (err error) {
-	if awsSession == nil {
-		awsSession, err = session.NewSession()
+func (s *Storing) startS3Session() (err error) {
+	if s.session == nil {
+		s.session, err = session.NewSession()
 		return
 	}
 	return
 }
 
 // Upload upload file to S3
-func Upload(name string, contentType string, content []byte) (path string, err error) {
-	err = startS3Session()
+func (s *Storing) Upload(name string, contentType string, content []byte) (path string, err error) {
+	err = s.startS3Session()
 	if err != nil {
 		return
 	}
 
-	uploader := s3manager.NewUploader(awsSession)
+	uploader := s3manager.NewUploader(s.session)
 
 	var file *s3manager.UploadOutput
 	file, err = uploader.Upload(&s3manager.UploadInput{
@@ -51,13 +54,13 @@ func Upload(name string, contentType string, content []byte) (path string, err e
 }
 
 // Download file from s3
-func Download(path string) (b []byte, err error) {
-	err = startS3Session()
+func (s *Storing) Download(path string) (b []byte, err error) {
+	err = s.startS3Session()
 	if err != nil {
 		return
 	}
 
-	downloader := s3manager.NewDownloader(awsSession)
+	downloader := s3manager.NewDownloader(s.session)
 	if err != nil {
 		return
 	}
@@ -81,13 +84,13 @@ func Download(path string) (b []byte, err error) {
 }
 
 // Delete from s3
-func Delete(key string) (err error) {
-	err = startS3Session()
+func (s *Storing) Delete(key string) (err error) {
+	err = s.startS3Session()
 	if err != nil {
 		return
 	}
 
-	svc := s3.New(awsSession)
+	svc := s3.New(s.session)
 	obj := &s3.DeleteObjectInput{
 		Bucket: aws.String("nuveofs"),
 		Key:    aws.String(key),
