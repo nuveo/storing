@@ -18,6 +18,13 @@ type Storing struct {
 	Items       map[string]item
 }
 
+// New mock storing
+func New() *Storing {
+	return &Storing{
+		Items: make(map[string]item),
+	}
+}
+
 // Provider returns the name of the provider of the current adapter.
 func (s *Storing) Provider() string {
 	return "Mock"
