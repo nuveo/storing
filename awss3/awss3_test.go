@@ -7,21 +7,21 @@ import (
 )
 
 func TestS3(t *testing.T) {
-
+	s := &Storing{}
 	bUp, err := ioutil.ReadFile("../testdata/testfile.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Upload
-	_, err = Upload("testfile.txt", "text/plain", bUp)
+	_, err = s.Upload("testfile.txt", "text/plain", bUp)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	// Download
 	var bDown []byte
-	bDown, err = Download("testfile.txt")
+	bDown, err = s.Download("testfile.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -31,12 +31,12 @@ func TestS3(t *testing.T) {
 	}
 
 	// Delete
-	err = Delete("testfile.txt")
+	err = s.Delete("testfile.txt")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	_, err = Download("testfile.txt")
+	_, err = s.Download("testfile.txt")
 	if err == nil {
 		t.Fatal("An error was expected")
 	}
