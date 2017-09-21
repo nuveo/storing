@@ -4,7 +4,7 @@ import (
 	"sync"
 )
 
-type item struct {
+type Item struct {
 	ContentType string
 	Content     []byte
 }
@@ -15,13 +15,13 @@ type Storing struct {
 	UploadErr   error
 	DownloadErr error
 	DeleteErr   error
-	Items       map[string]item
+	Items       map[string]Item
 }
 
 // New mock storing
 func New() *Storing {
 	return &Storing{
-		Items: make(map[string]item),
+		Items: make(map[string]Item),
 	}
 }
 
@@ -35,7 +35,7 @@ func (s *Storing) Upload(name string, contentType string, content []byte) (path 
 	err = s.UploadErr
 	if err == nil {
 		s.mtx.Lock()
-		s.Items[name] = item{ContentType: contentType, Content: content}
+		s.Items[name] = Item{ContentType: contentType, Content: content}
 		s.mtx.Unlock()
 		path = name
 	}
