@@ -40,8 +40,8 @@ func (s *Storing) Upload(name string, contentType string, content []byte) (path 
 
 	var file *s3manager.UploadOutput
 	file, err = uploader.Upload(&s3manager.UploadInput{
-		Bucket:      aws.String("nuveofs"),
-		ACL:         aws.String("private"),
+		Bucket:      aws.String(os.Getenv("AWS_BUCKET")),
+		ACL:         aws.String(os.Getenv("AWS_ACL")),
 		Key:         aws.String(name),
 		ContentType: aws.String(contentType),
 		Body:        bytes.NewReader(content),
