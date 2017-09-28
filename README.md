@@ -1,4 +1,4 @@
-# storing.core
+# storing
 Take care of writing and reading on AWS S3 and others storage providers
 
 ## Environment setting
