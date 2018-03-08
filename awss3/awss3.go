@@ -93,9 +93,9 @@ func (s *Storing) Download(path string) (b []byte, err error) {
 		return
 	}
 	defer func() {
-		err = os.Remove(tmpfile.Name())
-		if err != nil {
-			log.Errorln(err)
+		rmErr := os.Remove(tmpfile.Name())
+		if rmErr != nil {
+			log.Errorln(rmErr)
 		}
 	}()
 
