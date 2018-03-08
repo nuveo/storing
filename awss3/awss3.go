@@ -19,42 +19,48 @@ type Storing struct {
 	ACL     string
 }
 
-// Options for AWS s3 Storing
-type Options struct {
-	Session *session.Session
-	Bucket  string
-	ACL     string
-}
-
-func startS3Session() (s *session.Session, err error) {
-	s, err = session.NewSession()
-	return
-}
-
 // New s3 storing
-func New(opts ...Options) (s *Storing, err error) {
-	opt := Options{}
-	if len(opts) > 0 {
-		opt = opts[0]
+func New(opts ...func(*Storing) error) (st *Storing, err error) {
+	ss, err := session.NewSession()
+	if err != nil {
+		return
 	}
-	if opt.Session == nil {
-		opt.Session, err = startS3Session()
-		if err != nil {
+	st = &Storing{
+		Session: ss,
+		ACL:     os.Getenv("AWS_ACL"),
+		Bucket:  os.Getenv("AWS_BUCKET"),
+	}
+	for _, opt := range opts {
+		if err = opt(st); err != nil {
+			st = nil
 			return
 		}
 	}
-	if opt.Bucket == "" {
-		opt.Bucket = os.Getenv("AWS_BUCKET")
-	}
-	if opt.ACL == "" {
-		opt.ACL = os.Getenv("AWS_ACL")
-	}
-	s = &Storing{
-		Session: opt.Session,
-		Bucket:  opt.Bucket,
-		ACL:     opt.ACL,
-	}
 	return
+}
+
+// ACL is an option to set when storing is created
+func ACL(acl string) func(*Storing) error {
+	return func(st *Storing) error {
+		st.ACL = acl
+		return nil
+	}
+}
+
+// Bucket is an option to set when storing is created
+func Bucket(bucket string) func(*Storing) error {
+	return func(st *Storing) error {
+		st.Bucket = bucket
+		return nil
+	}
+}
+
+// CustomSession is an option to set when storing is created
+func CustomSession(s *session.Session) func(*Storing) error {
+	return func(st *Storing) error {
+		st.Session = s
+		return nil
+	}
 }
 
 // Provider returns the name of the provider of the current adapter.
