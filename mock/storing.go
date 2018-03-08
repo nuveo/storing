@@ -4,6 +4,7 @@ import (
 	"sync"
 )
 
+// Item mock storing
 type Item struct {
 	ContentType string
 	Content     []byte
