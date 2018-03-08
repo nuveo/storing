@@ -9,7 +9,7 @@ import (
 func TestS3(t *testing.T) {
 	s, err := New()
 	if err != nil {
-		return
+		t.Fatal(err)
 	}
 	bUp, err := ioutil.ReadFile("../testdata/testfile.txt")
 	if err != nil {
