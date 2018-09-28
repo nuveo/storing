@@ -70,6 +70,7 @@ func (s *Storing) Provider() string {
 
 // Upload upload file to S3
 func (s *Storing) Upload(name string, contentType string, content []byte) (path string, err error) {
+	log.Printf("upload file to s3 %v\n", name)
 	uploader := s3manager.NewUploader(s.Session)
 
 	var file *s3manager.UploadOutput
@@ -89,6 +90,7 @@ func (s *Storing) Upload(name string, contentType string, content []byte) (path 
 
 // Download file from s3
 func (s *Storing) Download(path string) (b []byte, err error) {
+	log.Printf("download file to s3 %v\n", path)
 	downloader := s3manager.NewDownloader(s.Session)
 	if err != nil {
 		return
@@ -119,6 +121,7 @@ func (s *Storing) Download(path string) (b []byte, err error) {
 
 // Delete from s3
 func (s *Storing) Delete(key string) (err error) {
+	log.Printf("download file to s3 %v\n", key)
 	svc := s3.New(s.Session)
 	obj := &s3.DeleteObjectInput{
 		Bucket: aws.String(s.Bucket),
