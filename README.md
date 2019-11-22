@@ -12,6 +12,13 @@ export AWS_BUCKET=XXXXXXXXX
 export AWS_ACL=XXXXXXXXX
 ```
 
+To use with Azure it is necessary to set the following environment variables:
+```shell
+export AZURE_STORAGE_ACCOUNT=XXXXXXXXX
+export AZURE_STORAGE_CONTAINER=XXXXXXXXX
+export AZURE_STORAGE_ACESS_KEY=XXXXXXXXX
+```
+
 ## Installation
 
 ```shell
