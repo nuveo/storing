@@ -56,6 +56,7 @@ func (s *Storing) Upload(name string, contentType string, content []byte) (strin
 	return name, err
 }
 
+// Download download the file the remote blob storage
 func (s *Storing) Download(name string) ([]byte, error) {
 	credential, _ := azblob.NewSharedKeyCredential(s.StorageAccount, s.StorageAccessKey)
 	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
@@ -73,10 +74,12 @@ func (s *Storing) Download(name string) ([]byte, error) {
 	return data, err
 }
 
+// Provider return which is the provider being used at the time
 func Provider() string {
 	return "blob"
 }
 
+// Delete the remote blob storage
 func (s *Storing) Delete(name string) error {
 	credential, _ := azblob.NewSharedKeyCredential(s.StorageAccount, s.StorageAccessKey)
 	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
@@ -98,4 +101,8 @@ func allStoringFieldsCorrect(st *Storing) error {
 	}
 
 	return nil
+}
+
+func (s *Storing) getContainerAndBlobURL(name string) (string, string) {
+	return "", ""
 }
