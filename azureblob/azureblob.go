@@ -37,18 +37,12 @@ func New() (*Storing, error) {
 
 // Upload upload a file to blob
 func (s *Storing) Upload(name string, contentType string, content []byte) (string, error) {
-	credential, err := azblob.NewSharedKeyCredential(s.StorageAccount, s.StorageAccessKey)
-	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
-	URL, _ := url.Parse(
-		fmt.Sprintf("https://%s.blob.core.windows.net/%s", s.StorageAccount, s.ContainerName))
-	containerURL := azblob.NewContainerURL(*URL, p)
-	blobURL := containerURL.NewBlockBlobURL(name)
-
+	blobURL := s.getBlobURL(name)
 	ctx := context.Background()
-	_, err = azblob.UploadBufferToBlockBlob(ctx, content, blobURL, azblob.UploadToBlockBlobOptions{
+
+	_, err := azblob.UploadBufferToBlockBlob(ctx, content, blobURL, azblob.UploadToBlockBlobOptions{
 		BlockSize:   4 * 1024 * 1024,
 		Parallelism: 16})
-
 	if err != nil {
 		return "", err
 	}
@@ -58,20 +52,16 @@ func (s *Storing) Upload(name string, contentType string, content []byte) (strin
 
 // Download download the file the remote blob storage
 func (s *Storing) Download(name string) ([]byte, error) {
-	credential, _ := azblob.NewSharedKeyCredential(s.StorageAccount, s.StorageAccessKey)
-	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
-	URL, _ := url.Parse(
-		fmt.Sprintf("https://%s.blob.core.windows.net/%s", s.StorageAccount, s.ContainerName))
-	containerURL := azblob.NewContainerURL(*URL, p)
-	blobURL := containerURL.NewBlockBlobURL(name)
-
+	blobURL := s.getBlobURL(name)
 	ctx := context.Background()
-
 	blobProperties, err := blobURL.GetProperties(ctx, azblob.BlobAccessConditions{})
 	data := make([]byte, blobProperties.ContentLength())
 
 	err = azblob.DownloadBlobToBuffer(ctx, blobURL.BlobURL, 0, 0, data, azblob.DownloadFromBlobOptions{})
-	return data, err
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 
 // Provider return which is the provider being used at the time
@@ -81,16 +71,14 @@ func Provider() string {
 
 // Delete the remote blob storage
 func (s *Storing) Delete(name string) error {
-	credential, _ := azblob.NewSharedKeyCredential(s.StorageAccount, s.StorageAccessKey)
-	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
-	URL, _ := url.Parse(
-		fmt.Sprintf("https://%s.blob.core.windows.net/%s", s.StorageAccount, s.ContainerName))
-	containerURL := azblob.NewContainerURL(*URL, p)
-	blobURL := containerURL.NewBlockBlobURL(name)
-
+	blobURL := s.getBlobURL(name)
 	ctx := context.Background()
 
-	blobURL.Delete(ctx, azblob.DeleteSnapshotsOptionInclude, azblob.BlobAccessConditions{})
+	_, err := blobURL.Delete(ctx, azblob.DeleteSnapshotsOptionInclude, azblob.BlobAccessConditions{})
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
@@ -103,6 +91,13 @@ func allStoringFieldsCorrect(st *Storing) error {
 	return nil
 }
 
-func (s *Storing) getContainerAndBlobURL(name string) (string, string) {
-	return "", ""
+func (s *Storing) getBlobURL(name string) azblob.BlockBlobURL {
+	credential, _ := azblob.NewSharedKeyCredential(s.StorageAccount, s.StorageAccessKey)
+	pipeline := azblob.NewPipeline(credential, azblob.PipelineOptions{})
+
+	URL, _ := url.Parse(
+		fmt.Sprintf("https://%s.blob.core.windows.net/%s", s.StorageAccount, s.ContainerName))
+
+	containerURL := azblob.NewContainerURL(*URL, pipeline)
+	return containerURL.NewBlockBlobURL(name)
 }
