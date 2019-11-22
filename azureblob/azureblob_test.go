@@ -22,4 +22,10 @@ func TestBlob(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// Delete
+	err = s.Delete("testfile.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+
 }

@@ -65,6 +65,17 @@ func Provider() string {
 }
 
 func (s *Storing) Delete(name string) error {
+	credential, _ := azblob.NewSharedKeyCredential(s.StorageAccount, s.StorageAccessKey)
+	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
+	URL, _ := url.Parse(
+		fmt.Sprintf("https://%s.blob.core.windows.net/%s", s.StorageAccount, s.ContainerName))
+	containerURL := azblob.NewContainerURL(*URL, p)
+	blobURL := containerURL.NewBlockBlobURL(name)
+
+	ctx := context.Background()
+
+	blobURL.Delete(ctx, azblob.DeleteSnapshotsOptionInclude, azblob.BlobAccessConditions{})
+
 	return nil
 }
 
