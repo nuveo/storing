@@ -57,7 +57,20 @@ func (s *Storing) Upload(name string, contentType string, content []byte) (strin
 }
 
 func (s *Storing) Download(name string) ([]byte, error) {
-	return nil, nil
+	credential, _ := azblob.NewSharedKeyCredential(s.StorageAccount, s.StorageAccessKey)
+	p := azblob.NewPipeline(credential, azblob.PipelineOptions{})
+	URL, _ := url.Parse(
+		fmt.Sprintf("https://%s.blob.core.windows.net/%s", s.StorageAccount, s.ContainerName))
+	containerURL := azblob.NewContainerURL(*URL, p)
+	blobURL := containerURL.NewBlockBlobURL(name)
+
+	ctx := context.Background()
+
+	blobProperties, err := blobURL.GetProperties(ctx, azblob.BlobAccessConditions{})
+	data := make([]byte, blobProperties.ContentLength())
+
+	err = azblob.DownloadBlobToBuffer(ctx, blobURL.BlobURL, 0, 0, data, azblob.DownloadFromBlobOptions{})
+	return data, err
 }
 
 func Provider() string {
